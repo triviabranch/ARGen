@@ -375,6 +375,7 @@
         const width = Number(videoWidth.value || 1);
         const height = Number(videoHeight.value || 0.56);
         const scale = modelScale.value.trim() || "0.4 0.4 0.4";
+        const scriptClose = "</scr" + "ipt>";
 
         const assetBlock =
           mode === "video"
@@ -388,7 +389,7 @@
 
         const helperScript =
           mode === "video"
-            ? `    <script>\n      const target = document.querySelector("[mindar-image-target]");\n      const video = document.getElementById("ar-video");\n      target.addEventListener("targetFound", () => video.play());\n      target.addEventListener("targetLost", () => video.pause());\n    </script>`
+            ? `    <script>\n      const target = document.querySelector("[mindar-image-target]");\n      const video = document.getElementById("ar-video");\n      target.addEventListener("targetFound", () => video.play());\n      target.addEventListener("targetLost", () => video.pause());\n    ${scriptClose}`
             : "";
 
         htmlOutput.value = `<!doctype html>\n<html>\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>\n    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>\n    <style>\n      body { margin: 0; overflow: hidden; }\n      #hint { position: fixed; bottom: 16px; width: 100%; text-align: center; color: #fff; font-family: sans-serif; text-shadow: 0 2px 6px rgba(0,0,0,.6); }\n    </style>\n  </head>\n  <body>\n    <a-scene\n      mindar-image="imageTargetSrc: ${mindFile}; autoStart: true;"\n      vr-mode-ui="enabled: false"\n      device-orientation-permission-ui="enabled: true"\n    >\n      <a-assets>\n${assetBlock}\n      </a-assets>\n\n      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>\n\n      <a-entity mindar-image-target="targetIndex: 0">\n${targetBlock}\n      </a-entity>\n    </a-scene>\n\n    <div id="hint">Point your camera at the ${label} marker</div>\n${helperScript}\n  </body>\n</html>\n`;
