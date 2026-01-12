@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Enigmat AR Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f0e9;
+        --ink: #1c1412;
+        --muted: #6b5c55;
+        --accent: #f05a28;
+        --accent-dark: #c64b23;
+        --card: #ffffff;
+        --line: #e2d8cf;
+        --shadow: 0 20px 50px rgba(35, 20, 15, 0.18);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", system-ui, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top, #fff7ef 0%, var(--bg) 65%, #efe0d3 100%);
+        min-height: 100vh;
+      }
+
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 36px;
+      }
+
+      h1 {
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-size: clamp(2.2rem, 4vw, 3.4rem);
+        letter-spacing: -0.03em;
+        margin: 0;
+      }
+
+      header p {
+        max-width: 720px;
+        font-size: 1.05rem;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+      }
+
+      .card h2 {
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-size: 1.3rem;
+        margin: 0 0 16px;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        font-weight: 500;
+        margin: 14px 0 6px;
+        color: var(--muted);
+      }
+
+      input[type="text"],
+      input[type="number"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        font-size: 0.98rem;
+        font-family: inherit;
+        color: var(--ink);
+        background: #fffdfa;
+      }
+
+      input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        background: #fffdfa;
+      }
+
+      textarea {
+        min-height: 260px;
+        resize: vertical;
+        font-family: "DM Sans", system-ui, sans-serif;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      button {
+        border: none;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        background: var(--accent);
+        color: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(240, 90, 40, 0.28);
+      }
+
+      button:disabled {
+        background: #ccb9af;
+        cursor: not-allowed;
+      }
+
+      .ghost {
+        background: transparent;
+        color: var(--accent-dark);
+        border: 1px solid rgba(240, 90, 40, 0.45);
+      }
+
+      .preview {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 14px;
+        margin-top: 16px;
+        align-items: center;
+      }
+
+      .preview img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #f4ede6;
+      }
+
+      .meta {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .progress {
+        position: relative;
+        height: 10px;
+        background: #efe4da;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 14px;
+      }
+
+      .progress span {
+        position: absolute;
+        inset: 0;
+        width: 0%;
+        background: linear-gradient(90deg, #f05a28 0%, #f6b38e 100%);
+        transition: width 0.2s ease;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .segmented {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        overflow: hidden;
+        background: #fffdfa;
+      }
+
+      .segmented button {
+        background: transparent;
+        color: var(--muted);
+        box-shadow: none;
+        padding: 10px 16px;
+        border-radius: 0;
+      }
+
+      .segmented button.active {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .note {
+        margin-top: 14px;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      @media (max-width: 720px) {
+        .preview {
+          grid-template-columns: 1fr;
+        }
+        .preview img {
+          width: 100%;
+          height: 180px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>Enigmat AR Builder</h1>
+        <p>
+          Upload a JPG of your beer mat, generate the MindAR target file, and get a ready-to-drop
+          HTML block for your puzzle pages.
+        </p>
+      </header>
+
+      <main class="grid">
+        <section class="card">
+          <h2>1. Upload marker</h2>
+          <input id="marker-input" type="file" accept="image/jpeg,image/png" />
+
+          <div class="preview">
+            <img id="marker-preview" alt="Marker preview" />
+            <div class="meta" id="marker-meta">No image selected yet.</div>
+          </div>
+
+          <div class="actions">
+            <button id="compile-btn" type="button" disabled>Generate .mind</button>
+            <button id="download-mind" type="button" class="ghost" disabled>Download .mind</button>
+          </div>
+
+          <div class="progress" aria-hidden="true">
+            <span id="progress-bar"></span>
+          </div>
+          <div class="status" id="compile-status">Waiting for an image.</div>
+        </section>
+
+        <section class="card">
+          <h2>2. Define AR content</h2>
+          <label for="label-input">Label</label>
+          <input id="label-input" type="text" value="beer-mat" />
+
+          <label for="mind-path">Mind file path</label>
+          <input id="mind-path" type="text" value="assets/beer-mat.mind" />
+
+          <label>Experience type</label>
+          <div class="segmented" role="group" aria-label="Experience type">
+            <button id="mode-video" type="button" class="active">Video</button>
+            <button id="mode-model" type="button">GLB Model</button>
+          </div>
+
+          <label for="video-url">Video URL (mp4)</label>
+          <input id="video-url" type="text" value="assets/beer-mat.mp4" />
+
+          <label for="model-url">Model URL (glb)</label>
+          <input id="model-url" type="text" value="assets/beer-mat.glb" />
+
+          <label for="video-width">Video width (meters)</label>
+          <input id="video-width" type="number" min="0.1" step="0.1" value="1" />
+
+          <label for="video-height">Video height (meters)</label>
+          <input id="video-height" type="number" min="0.1" step="0.1" value="0.56" />
+
+          <label for="model-scale">Model scale (x y z)</label>
+          <input id="model-scale" type="text" value="0.4 0.4 0.4" />
+        </section>
+
+        <section class="card wide">
+          <h2>3. HTML output</h2>
+          <textarea id="html-output" spellcheck="false"></textarea>
+          <div class="actions">
+            <button id="copy-html" type="button">Copy HTML</button>
+            <button id="download-html" type="button" class="ghost">Download HTML</button>
+          </div>
+          <div class="note">
+            The generated HTML includes A-Frame + MindAR from CDN. Drop it into any page or use it
+            as a standalone AR page.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module">
+      import "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js";
+
+      const compiler = new window.MINDAR.IMAGE.Compiler();
+      const markerInput = document.getElementById("marker-input");
+      const markerPreview = document.getElementById("marker-preview");
+      const markerMeta = document.getElementById("marker-meta");
+      const compileBtn = document.getElementById("compile-btn");
+      const downloadMind = document.getElementById("download-mind");
+      const progressBar = document.getElementById("progress-bar");
+      const statusEl = document.getElementById("compile-status");
+      const htmlOutput = document.getElementById("html-output");
+      const copyHtml = document.getElementById("copy-html");
+      const downloadHtml = document.getElementById("download-html");
+      const modeVideo = document.getElementById("mode-video");
+      const modeModel = document.getElementById("mode-model");
+      const labelInput = document.getElementById("label-input");
+      const mindPath = document.getElementById("mind-path");
+      const videoUrl = document.getElementById("video-url");
+      const modelUrl = document.getElementById("model-url");
+      const videoWidth = document.getElementById("video-width");
+      const videoHeight = document.getElementById("video-height");
+      const modelScale = document.getElementById("model-scale");
+
+      let currentImage = null;
+      let compiledMind = null;
+      let fileBase = "beer-mat";
+      let mode = "video";
+
+      const updateProgress = (percent) => {
+        const safe = Math.max(0, Math.min(100, percent));
+        progressBar.style.width = `${safe}%`;
+      };
+
+      const setStatus = (message) => {
+        statusEl.textContent = message;
+      };
+
+      const setMode = (nextMode) => {
+        mode = nextMode;
+        modeVideo.classList.toggle("active", mode === "video");
+        modeModel.classList.toggle("active", mode === "model");
+        buildHtml();
+      };
+
+      const toSlug = (value) =>
+        value
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "") || "beer-mat";
+
+      const buildHtml = () => {
+        const label = labelInput.value.trim() || fileBase;
+        const mindFile = mindPath.value.trim() || `assets/${fileBase}.mind`;
+        const videoSrc = videoUrl.value.trim() || `assets/${fileBase}.mp4`;
+        const modelSrc = modelUrl.value.trim() || `assets/${fileBase}.glb`;
+        const width = Number(videoWidth.value || 1);
+        const height = Number(videoHeight.value || 0.56);
+        const scale = modelScale.value.trim() || "0.4 0.4 0.4";
+
+        const assetBlock =
+          mode === "video"
+            ? `    <video\n      id="ar-video"\n      src="${videoSrc}"\n      loop\n      muted\n      playsinline\n      preload="auto"\n    ></video>`
+            : `    <a-asset-item id="ar-model" src="${modelSrc}"></a-asset-item>`;
+
+        const targetBlock =
+          mode === "video"
+            ? `      <a-video\n        src="#ar-video"\n        width="${width}"\n        height="${height}"\n        position="0 0 0"\n      ></a-video>`
+            : `      <a-entity\n        gltf-model="#ar-model"\n        position="0 0 0"\n        scale="${scale}"\n      ></a-entity>`;
+
+        const helperScript =
+          mode === "video"
+            ? `    <script>\n      const target = document.querySelector("[mindar-image-target]");\n      const video = document.getElementById("ar-video");\n      target.addEventListener("targetFound", () => video.play());\n      target.addEventListener("targetLost", () => video.pause());\n    </script>`
+            : "";
+
+        htmlOutput.value = `<!doctype html>\n<html>\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>\n    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>\n    <style>\n      body { margin: 0; overflow: hidden; }\n      #hint { position: fixed; bottom: 16px; width: 100%; text-align: center; color: #fff; font-family: sans-serif; text-shadow: 0 2px 6px rgba(0,0,0,.6); }\n    </style>\n  </head>\n  <body>\n    <a-scene\n      mindar-image="imageTargetSrc: ${mindFile}; autoStart: true;"\n      vr-mode-ui="enabled: false"\n      device-orientation-permission-ui="enabled: true"\n    >\n      <a-assets>\n${assetBlock}\n      </a-assets>\n\n      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>\n\n      <a-entity mindar-image-target="targetIndex: 0">\n${targetBlock}\n      </a-entity>\n    </a-scene>\n\n    <div id="hint">Point your camera at the ${label} marker</div>\n${helperScript}\n  </body>\n</html>\n`;
+      };
+
+      const updateDefaultsFromFile = (file) => {
+        fileBase = toSlug(file.name.replace(/\.[^/.]+$/, ""));
+        if (labelInput.value.trim() === "beer-mat") {
+          labelInput.value = fileBase;
+        }
+        mindPath.value = `assets/${fileBase}.mind`;
+        videoUrl.value = `assets/${fileBase}.mp4`;
+        modelUrl.value = `assets/${fileBase}.glb`;
+        buildHtml();
+      };
+
+      markerInput.addEventListener("change", async (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+          return;
+        }
+        const previewUrl = URL.createObjectURL(file);
+        markerPreview.src = previewUrl;
+        markerPreview.onload = () => URL.revokeObjectURL(previewUrl);
+        currentImage = new Image();
+        currentImage.onload = () => {
+          markerMeta.textContent = `${file.name} · ${currentImage.width}×${currentImage.height}px`;
+          compileBtn.disabled = false;
+          setStatus("Ready to compile target.");
+        };
+        currentImage.onerror = () => {
+          setStatus("Image load failed. Try a different JPG or PNG.");
+          compileBtn.disabled = true;
+        };
+        const imageUrl = URL.createObjectURL(file);
+        currentImage.src = imageUrl;
+        currentImage.onloadend = () => URL.revokeObjectURL(imageUrl);
+        updateDefaultsFromFile(file);
+      });
+
+      compileBtn.addEventListener("click", async () => {
+        if (!currentImage) {
+          setStatus("Upload an image before compiling.");
+          return;
+        }
+        compileBtn.disabled = true;
+        downloadMind.disabled = true;
+        setStatus("Compiling target, please keep this tab open.");
+        updateProgress(0);
+        try {
+          await compiler.compileImageTargets([currentImage], (progress) => {
+            updateProgress(progress);
+          });
+          compiledMind = compiler.exportData();
+          updateProgress(100);
+          setStatus("Target ready. Download the .mind file.");
+          downloadMind.disabled = false;
+        } catch (error) {
+          setStatus(`Compile failed: ${error && error.message ? error.message : "unknown error"}`);
+        } finally {
+          compileBtn.disabled = false;
+        }
+      });
+
+      downloadMind.addEventListener("click", () => {
+        if (!compiledMind) {
+          return;
+        }
+        const blob = new Blob([compiledMind], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${fileBase}.mind`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      copyHtml.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(htmlOutput.value);
+          copyHtml.textContent = "Copied!";
+          setTimeout(() => {
+            copyHtml.textContent = "Copy HTML";
+          }, 1500);
+        } catch (error) {
+          setStatus("Copy failed. You can manually select the HTML instead.");
+        }
+      });
+
+      downloadHtml.addEventListener("click", () => {
+        const blob = new Blob([htmlOutput.value], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${fileBase}-ar.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      [
+        labelInput,
+        mindPath,
+        videoUrl,
+        modelUrl,
+        videoWidth,
+        videoHeight,
+        modelScale,
+      ].forEach((input) => input.addEventListener("input", buildHtml));
+
+      modeVideo.addEventListener("click", () => setMode("video"));
+      modeModel.addEventListener("click", () => setMode("model"));
+
+      buildHtml();
+    </script>
+  </body>
+</html>
